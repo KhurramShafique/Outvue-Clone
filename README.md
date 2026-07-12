@@ -23,33 +23,38 @@ Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and Framer Motion.
 ```
 outvue-site/
 ├── app/
-│   ├── layout.tsx              # Root layout, fonts, global metadata
-│   ├── globals.css             # Design tokens, base styles, utility classes
-│   ├── page.tsx                # Landing page (composes all sections)
-│   ├── sitemap.ts              # Auto-generated sitemap.xml
+│   ├── layout.tsx               # Minimal root shell (fonts, global metadata, <html>/<body>)
+│   ├── globals.css              # Design tokens, base styles, utility classes
+│   ├── sitemap.ts               # Auto-generated sitemap.xml
 │   ├── robots.ts                # Auto-generated robots.txt
-│   ├── features/page.tsx
-│   ├── how-it-works/page.tsx
-│   ├── pricing/page.tsx
-│   ├── integrations/page.tsx
-│   ├── customers/page.tsx
-│   ├── blog/page.tsx
-│   ├── blog/[slug]/page.tsx    # Dynamic blog post route
-│   ├── about/page.tsx
-│   ├── contact/page.tsx
-│   ├── login/page.tsx
-│   ├── signup/page.tsx
-│   └── legal/{privacy,terms,gdpr,security}/page.tsx
+│   ├── (marketing)/             # Route group — all public marketing pages, wrapped in
+│   │   ├── layout.tsx           # Navbar + Footer + CookieBanner
+│   │   ├── page.tsx             # Landing page (composes all sections)
+│   │   ├── features/, how-it-works/, pricing/, integrations/, customers/,
+│   │   ├── blog/, blog/[slug]/, about/, contact/, login/, signup/
+│   │   └── legal/{privacy,terms,gdpr,security}/page.tsx
+│   └── dashboard/                # Gated app — sidebar/topbar shell, protected by middleware.ts
+│       ├── layout.tsx
+│       ├── page.tsx              # Dashboard overview
+│       └── growth-data/, analytics/, action-planning/, monthly-review/,
+│           billing/, reports/, compliance/, admin-panel/, settings/
 ├── components/
-│   ├── ui/                     # Button, GlassCard, Badge, AnimatedCounter, FadeIn, Waveform
-│   ├── layout/                 # Navbar, Footer, CookieBanner
-│   ├── sections/                # Hero, Features, HowItWorks, Integrations, Pricing,
-│   │                            # Testimonials, FAQ, CTASection
-│   └── modals/                 # DemoBookingModal
+│   ├── ui/                      # Button, GlassCard, Badge, AnimatedCounter, FadeIn, Waveform
+│   ├── layout/                  # Navbar, Footer, CookieBanner
+│   ├── sections/                 # Hero, Features, HowItWorks, Integrations, Pricing,
+│   │                             # Testimonials, FAQ, CTASection
+│   ├── modals/                  # DemoBookingModal
+│   ├── forms/                   # ContactForm, SignupForm (client components with handlers)
+│   └── dashboard/                # Sidebar, Topbar, Primitives, charts/
 ├── lib/
-│   ├── data.ts                 # All sample/mock content (features, pricing, FAQ, blog, etc.)
-│   └── utils.ts                # `cn()` class merge helper, number formatting
-└── public/                     # Static assets (add real OG image, favicon, etc.)
+│   ├── data.ts                  # Marketing site sample content (features, pricing, FAQ, blog)
+│   ├── utils.ts                 # `cn()` class merge helper, number formatting
+│   ├── db/                      # SQLite client + typed query helpers
+│   └── auth/                    # Session token signing, login/logout server actions
+├── scripts/seed.mjs             # Creates & seeds data/outvue.db
+├── data/outvue.db                # The demo database (ships pre-seeded)
+├── middleware.ts                 # Protects /dashboard/* routes
+└── public/                      # Static assets (add real OG image, favicon, etc.)
 ```
 
 ## Getting started
@@ -60,6 +65,29 @@ npm run dev
 ```
 
 Open http://localhost:3000.
+
+## Dashboard demo (with real database)
+
+The site includes a gated `/dashboard` app with 10 sections — Dashboard, Growth Data,
+Analytics, Action Planning, Monthly Review, Billing, Reports, Compliance, Admin Panel, and
+Settings — all reading from a real **SQLite** database at `data/outvue.db`.
+
+- **No extra dependency for SQLite**: it uses Node's built-in `node:sqlite` module
+  (Node 22.5+ — you already have this if `node -v` reports 22.5 or higher). No native
+  compilation, no `better-sqlite3`, nothing to fight with on Windows.
+- **The database ships pre-seeded** with realistic demo data, so it works immediately after
+  `npm install`. To reset/reseed it at any time:
+  ```bash
+  npm run db:seed
+  ```
+- **Demo login**: `demo@outvue.ai` / `demo1234` (pre-filled on the login page for convenience).
+- **This is a read-only demo**: the dashboard displays real data from the database, but there
+  are no add/edit/delete forms — it's built for showing people a working, data-backed product,
+  not for production data entry.
+- **Real auth gate**: `/dashboard/*` is protected by `middleware.ts`, which checks a signed
+  session cookie set on login. Passwords are hashed with `scrypt` (Node's built-in `crypto`,
+  no `bcrypt` dependency needed). Set a real `SESSION_SECRET` in `.env.local` before deploying
+  anywhere public — see `.env.example`.
 
 ## Notes on content & data
 

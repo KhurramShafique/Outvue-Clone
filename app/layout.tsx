@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import CookieBanner from "@/components/layout/CookieBanner";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -64,13 +61,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sora.variable} ${inter.variable} ${jbmono.variable}`}>
-      <body>
-        <div className="pointer-events-none fixed inset-0 -z-10 bg-mesh-glow" aria-hidden="true" />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <CookieBanner />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
